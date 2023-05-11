@@ -3,22 +3,26 @@ class State{
     stateId:number
     color: String;
 
-    transitions = Array(9).fill([]) as Number[][] //[nbours][new State]
-    startingState: number;
+    transitions = Array(9) //[nbours][new State]
+    //startingState: number;
 
-    constructor(){
+    constructor(id:number, color = "#FFFFFF", trans:Number[]){
+        this.stateId = id
+        this.color = color;
+        this.transitions = trans
         //this.transitions.fill([]);
     }
 }
 class RuleSet{
     states:State[]
-    constructor(){
-        
+    constructor(states:State[]){
+        this.states = states
     }
 
 }
 function GoL(){
-    return 
+    
+    return new RuleSet([])
 }
 class Grid{
 
