@@ -1,0 +1,9 @@
+body{
+    background-color: #1d1a1a;
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+    color: rgb(216, 112, 112);
+}
+#grid{
+    outline: dotted 1px white;
+}
