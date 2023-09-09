@@ -1,0 +1,112 @@
+
+
+
+class State{
+    color: string;
+    id:number
+
+    transitions = Array(9) //transtions[stateId][nbours] = stateID
+
+    constructor(id:number, color = "#1d1a1a", trans){
+        this.id = id
+        this.color = color;
+        this.transitions = trans;
+        //this.transitions.fill([]);
+    }
+
+    getNextStateID(surroundingStates:State[], amountState:number){
+    }
+}
+class RuleSet{
+    states:State[];
+    defaultState:State;
+    constructor(states:State[],defaultState?:State){
+        this.states = states;
+        if(defaultState == undefined){
+            this.defaultState = states[0];
+        }else{
+            this.defaultState = defaultState;
+        }
+    }
+
+    getStateIndex(state:State){
+        const i = this.states.findIndex((s) => s == state)
+        if(i == -1)throw new Error("Can't find next State");
+        return i;
+    }
+}
+function GoL(){
+    let dead = new State(0,undefined, [[],[0,0,0,1,0,0,0,0,0]]);
+    let alive = new State(1,"rgb(216, 112, 112)", [[0,0,1,1,0,0,0,0,0],[]]);
+    return new RuleSet([dead,alive],dead);
+}
+class Grid{
+
+    rules:RuleSet;
+
+    xPos:number;
+    yPos:number;
+
+    CELL_WIDTH = 20;
+    CELL_HEIGHT = 20;
+
+    GRID_WIDTH = 50;
+    GRID_HEIGHT = 40;
+    cells: State[][];
+
+    constructor(rules:RuleSet, xPos = 0, yPos = 0, cells?:State[][]){
+        this.rules = rules;
+        if(cells == undefined){
+            this.cells = new Array(this.GRID_WIDTH);
+            for(let i = 0; i < this.cells.length; i++){
+                this.cells[i] = Array(this.GRID_HEIGHT).fill(rules.defaultState); 
+            }
+        }
+        this.xPos = xPos;
+        this.yPos = yPos;
+    }
+
+    draw(gridCanvas:HTMLCanvasElement){
+        let ctx = gridCanvas.getContext("2d") as CanvasRenderingContext2D;
+        ctx.strokeStyle = "white";
+        for(let x = 0; x < this.GRID_WIDTH;x++){
+            for(let y = 0; y < this.GRID_HEIGHT;y++){
+                ctx.fillStyle = this.cells[x][y].color;
+                ctx.fillRect(x*this.CELL_WIDTH, y * this.CELL_HEIGHT,this.CELL_WIDTH,this.CELL_HEIGHT);
+                ctx.strokeRect(x*this.CELL_WIDTH, y * this.CELL_HEIGHT,this.CELL_WIDTH,this.CELL_HEIGHT);
+            }
+        }
+    }
+
+    getNbours(xPos:number, yPos:number){
+        let nbours:State[] = [];
+        for(let x = xPos-1; x <= xPos+1;x++){
+            for(let y = yPos-1; y <= yPos+1;y++){
+                nbours.push(this.cells[x][y]);
+            }            
+        }
+    }
+    //nextGrid(){}
+}
+
+onload = () => {
+    let gridCanvas = document.getElementById("grid") as HTMLCanvasElement;
+    let ctx = gridCanvas.getContext("2d");
+    let grid = new Grid(GoL());
+    gridCanvas.addEventListener("click",(ev) => {
+        
+        const cellX = Math.floor((ev.x - gridCanvas.offsetLeft)/grid.CELL_WIDTH);
+        const cellY = Math.floor((ev.y - gridCanvas.offsetTop)/grid.CELL_HEIGHT);
+        const clickedCell = grid.cells[cellX][cellY]
+        const newStatePos = (grid.rules.getStateIndex(clickedCell)+1)%grid.rules.states.length
+
+        grid.cells[cellX][cellY] = grid.rules.states[newStatePos];
+        grid.draw(gridCanvas);
+    })
+
+    gridCanvas.width = grid.GRID_WIDTH * grid.CELL_WIDTH;
+    gridCanvas.height = grid.GRID_HEIGHT * grid.CELL_HEIGHT;
+
+    grid.draw(gridCanvas);
+
+}

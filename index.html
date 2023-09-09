@@ -1,16 +1,56 @@
-<html>
+<html lang="en">
     <head>
         <title>•••Game Of Rules•••</title>
         <link rel="stylesheet" href="./css/style.css">
-        <script src="./script.js"></script>
+        <script src="./src/script.js"></script>
+        <meta charset="utf-8" />
         
     </head>
     <body>
         <h1> Cellular Automata </h1>
         <h2> design you own Game of Life!</h2>
-        <canvas id="grid"></canvas>
-        <button> Next </button>
-        
-        <div class="Selection"></div>
+        <div id="StateSelection"></div>
+        <div id="main">
+            <div id="CurrentGridController">
+                States:<br>
+                <div id="CurrentStateList" class="StateList"></div><br>
+                <button id="TransitionButton" class="button"> Next </button><br>
+                <button id="AutomaticTransitionButton" class="button"> AutoNext </button>
+                <button id="ResetButton" class="button"> Reset </button><br>
+                Transitions:
+                <div id="CurrentTransitionsList"></div>
+            </div>
+            <canvas id="grid"></canvas>
+            <div id="idk yet">
+                
+ 
+                <div id="RulesetCreation">
+                    <h1>Ruleset Creator</h1>
+                    <label for="RulesetNameInput">Ruleset name:</label> <input id="RulesetNameInput" type="text" placeholder="Type Name"><br>
+                    <p>States:</p>
+                    <div id="nextStateList" class="StateList"></div>
+                    
+                    <div id="StateCreation">
+                        <h2>State Creator</h2>
+                        <label for="StateColorSelector">Color:</label><input id="StateColorSelector" type="color"><button id="StateCreationButton">Add State</button><br>
+                    </div>
+
+                    <div id="TransitionCreation">
+                        <h2>Transition Creator</h2>
+                        Sum of all inputs must be equal to 8
+                        <!-- MAKE INPUT FIELDS FOR NUMBER OF NBOURS PER STATE -->
+                        <div id="TransitionAddition"></div>
+                        
+                        <button id="TransitionCreationButton">Add Transition</button><br>
+                        Transitions:
+                        <div id="nextTransitionList" class="StateList"></div>
+                    </div>
+                    <button id="RulesetCreationButton">Create Ruleset</button>  
+                </div>
+            </div>
+            
+        </div>
+        <div id="GridSelection"></div>
+        <button id="GridDeletionButton">Delete</button>
     </body>    
 </html>
