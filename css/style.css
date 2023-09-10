@@ -55,9 +55,10 @@ input{
 #CurrentTransitionsList{
     height: 692px;
     overflow-y: scroll;
+    overflow-x: hidden;
 }
-#grid{
-    border: solid 1px white;
+.grid{
+    outline: solid 1px white;
 }
 
 .State{
@@ -70,6 +71,7 @@ input{
     height : 20px;
     border : white solid 2px;
     margin: 2.5px;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; ;
 }
 .State.MarkedTo{
     border : red solid 2px;
@@ -87,7 +89,7 @@ input{
     padding: 10px;
 }
 
-.NBourInputBox{
+#TransitionAddition{
     display: flex;
     justify-content: center;
 }
