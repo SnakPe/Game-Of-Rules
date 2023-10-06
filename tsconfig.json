@@ -1,9 +1,7 @@
 {
     "compilerOptions": {
         "target": "es2022",
-        "outFile": "./src/script.js",
-        "lib": ["ES2022","DOM"]
-        
+        "lib": ["ES2022","DOM"],
     },
     
 }

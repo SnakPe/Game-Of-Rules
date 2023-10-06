@@ -101,3 +101,6 @@ input{
     display:inline-table;
     
 }
+#GridSelection{
+    display: inline;
+}

@@ -1,44 +1,6 @@
-class State {
-    /**
-     * if no transition is found, assume that the state transitions to itself again
-     */
-    transitions;
-    color;
-    constructor(color = "#1d1a1a", trans = []) {
-        this.color = color;
-        this.transitions = trans;
-    }
-    /**
-     * the transition ID is comprised by a digit per State, so that the digit describes the amount of neighnours of that state
-     * the first digit describes the amount of nbours belonging to the first state, the second digit describe the ones form the second state ...
-     *
-     * @param nboursByState
-     * @returns
-     */
-    getTransitionID(nboursByState) {
-        let transID = '';
-        nboursByState.forEach((nbours) => {
-            transID += nbours.toString();
-        });
-        return transID.toString();
-    }
-    getNextState(nboursByState) {
-        const transID = this.getTransitionID(nboursByState);
-        let transition = this.transitions.find((trans) => {
-            return trans[0] == transID;
-        });
-        return transition == undefined ? this : transition[1];
-    }
-}
-class Ruleset {
-    /**
-     * the first element in the array is the default state, which fills the beginning of the grid at the start
-     */
-    states;
-    constructor(states) {
-        this.states = states;
-    }
-}
+import { Grid } from "./Grid.js";
+import { Ruleset } from "./Ruleset.js";
+import { State } from "./State.js";
 const GoL = function () {
     let alive = new State("#d87070", []);
     let dead = new State(undefined, []);
@@ -105,153 +67,56 @@ const Wireworld = function () {
     cable.transitions = transitionsCableCell;
     return new Ruleset([empty, cable, head, tail]);
 };
-function mod(a, b) {
-    let result = a % b;
-    if (result < 0)
-        result = b + result;
-    return result;
-}
-class Grid {
-    table;
-    rules;
-    GRID_WIDTH = 100;
-    GRID_HEIGHT = 80;
-    constructor(ruleset, canvas) {
-        this.canvas = canvas;
-        this.rules = ruleset;
-        this.createTable();
-    }
-    createTable() {
-        this.table = [];
-        for (let x = 0; x < this.GRID_WIDTH; x++) {
-            this.table.push([]);
-            for (let y = 0; y < this.GRID_HEIGHT; y++) {
-                this.table[x].push(this.rules.states[0]);
-            }
-        }
-    }
-    getNboursByState(x, y) {
-        let nbours = [];
-        for (let states = 0; states < this.rules.states.length; states++)
-            nbours.push(0);
-        for (let xPos = x - 1; xPos <= x + 1; xPos++) {
-            for (let yPos = y - 1; yPos <= y + 1; yPos++) {
-                if (xPos == x && yPos == y)
-                    continue;
-                else {
-                    let stateIndex = this.rules.states.findIndex((state) => {
-                        return this.table[mod(xPos, this.GRID_WIDTH)][mod(yPos, this.GRID_HEIGHT)] == state;
-                    });
-                    nbours[stateIndex]++;
-                }
-            }
-        }
-        return nbours;
-    }
-    getStateIndex(state) {
-        return this.rules.states.findIndex((st) => state == st);
-    }
-    /**
-     * @deprecated use drawTransition to transition and draw instead. Having a seperate draw and transition function is inefficient
-     */
-    transition() {
-        let newTable = [];
-        for (let x = 0; x < this.GRID_WIDTH; x++) {
-            newTable.push([]);
-            for (let y = 0; y < this.GRID_HEIGHT; y++) {
-                newTable[x].push(this.table[x][y].getNextState(this.getNboursByState(x, y)));
-            }
-        }
-        this.table = newTable;
-        this.draw();
-    }
-    //interface stuff
-    CELL_WIDTH = 10;
-    CELL_HEIGHT = 10;
-    BORDER_WIDTH = .2;
-    canvas;
-    /**
-     * When drawing the next generation of the grid, use {@link drawTransition()} instead
-     */
-    draw() {
-        let ctx = this.canvas.getContext("2d");
-        ctx.lineWidth = this.BORDER_WIDTH;
-        ctx.strokeStyle = "white";
-        for (let x = 0; x < this.GRID_WIDTH; x++) {
-            for (let y = 0; y < this.GRID_HEIGHT; y++) {
-                ctx.fillStyle = this.table[x][y].color;
-                ctx.fillRect(x * this.CELL_WIDTH, y * this.CELL_HEIGHT, this.CELL_WIDTH, this.CELL_HEIGHT);
-                ctx.strokeRect(x * this.CELL_WIDTH, y * this.CELL_HEIGHT, this.CELL_WIDTH, this.CELL_HEIGHT);
-            }
-        }
-        ctx.strokeStyle = "red";
-        ctx.strokeRect(Math.floor(this.GRID_WIDTH / 2) * this.CELL_WIDTH, Math.ceil(this.GRID_HEIGHT / 2 - 1) * this.CELL_HEIGHT, this.CELL_WIDTH, this.CELL_HEIGHT);
-        ctx.strokeStyle = "white";
-    }
-    drawTransition() {
-        let newTable = Array.from(Array(this.GRID_WIDTH), () => new Array(this.GRID_HEIGHT));
-        let ctx = this.canvas.getContext("2d");
-        ctx.strokeStyle = "white";
-        ctx.lineWidth = this.BORDER_WIDTH;
-        for (let x = 0; x < this.GRID_WIDTH; x++) {
-            for (let y = 0; y < this.GRID_HEIGHT; y++) {
-                newTable[x][y] = (this.table[x][y].getNextState(this.getNboursByState(x, y)));
-                ctx.fillStyle = newTable[x][y].color;
-                const CellX = x * this.CELL_WIDTH;
-                const CellY = y * this.CELL_HEIGHT;
-                ctx.fillRect(CellX, CellY, this.CELL_WIDTH, this.CELL_HEIGHT);
-                ctx.strokeRect(CellX, CellY, this.CELL_WIDTH, this.CELL_HEIGHT);
-            }
-        }
-        ctx.strokeStyle = "red";
-        ctx.strokeRect(Math.floor(this.GRID_WIDTH / 2) * this.CELL_WIDTH, Math.ceil(this.GRID_HEIGHT / 2 - 1) * this.CELL_HEIGHT, this.CELL_WIDTH, this.CELL_HEIGHT);
-        this.table = newTable;
-    }
-}
 let grids = [];
+globalThis.grids = grids;
 let currentGrid = 0;
 let nextGrid;
 let newTransitionGrid;
 let stateSelection = {
-    fromStateIndex: undefined,
-    toStateIndex: undefined,
+    fromState: undefined,
+    toState: undefined,
     selectedToState: false,
     setCurrentState: (newState) => {
         let result = null;
-        if (newState == stateSelection.toStateIndex || newState == stateSelection.fromStateIndex) {
-            if (stateSelection.toStateIndex == undefined)
+        if (newState == stateSelection.toState || newState == stateSelection.fromState) {
+            if (stateSelection.toState == undefined)
                 return;
-            let temp = stateSelection.toStateIndex;
-            stateSelection.toStateIndex = stateSelection.fromStateIndex;
-            stateSelection.fromStateIndex = temp;
+            let temp = stateSelection.toState;
+            stateSelection.toState = stateSelection.fromState;
+            stateSelection.fromState = temp;
         }
         else {
             if (stateSelection.selectedToState) {
-                stateSelection.toStateIndex = newState;
+                stateSelection.toState = newState;
             }
             else {
-                stateSelection.fromStateIndex = newState;
+                stateSelection.fromState = newState;
             }
+            result = stateSelection.selectedToState;
             stateSelection.selectedToState = !stateSelection.selectedToState;
-            result = !stateSelection.selectedToState;
         }
         return result;
     },
     isValid: () => {
-        return stateSelection.fromStateIndex != undefined && stateSelection.toStateIndex != undefined && stateSelection.fromStateIndex != stateSelection.toStateIndex;
+        return stateSelection.fromState != undefined && stateSelection.toState != undefined && stateSelection.fromState != stateSelection.toState;
     },
     reset: () => {
-        stateSelection.toStateIndex = undefined;
-        stateSelection.fromStateIndex = undefined;
+        stateSelection.toState = undefined;
+        stateSelection.fromState = undefined;
         stateSelection.selectedToState = false;
     },
+    updateUI: () => {
+        const stateList = document.getElementById("nextStateList");
+        //TODO
+    }
 };
-function drawGrid(gridId) {
-    currentGrid = gridId;
-    grids[gridId].draw();
+globalThis.stateSelection = stateSelection;
+function showGrid(gridIndex) {
+    currentGrid = gridIndex;
+    grids[gridIndex].draw();
     let StateListView = document.getElementById("CurrentStateList");
     StateListView.innerHTML = "";
-    grids[gridId].rules.states.forEach((state) => {
+    grids[gridIndex].rules.states.forEach((state) => {
         let StateView = getNewStateDOMElement(state.color);
         StateView.addEventListener("click", () => {
             let markedState = document.getElementById("CurrentStateList").getElementsByClassName("MarkedFrom").item(0);
@@ -304,25 +169,24 @@ onload = () => {
     //Set up grid
     gridCanvas.width = grid().GRID_WIDTH * grid().CELL_WIDTH;
     gridCanvas.height = grid().GRID_HEIGHT * grid().CELL_HEIGHT;
-    drawGrid(currentGrid);
+    showGrid(currentGrid);
     //Set up next Grid made by user
     nextGrid = new Grid(new Ruleset([]), gridCanvas);
     //Add State draw functionality
-    function gridChangeState(grid, canv, ev) {
+    function changeGridCell(grid, canv, ev) {
         const tableX = Math.floor((ev.pageX - canv.offsetLeft) / grid.CELL_WIDTH);
         const tableY = Math.floor((ev.pageY - canv.offsetTop) / grid.CELL_HEIGHT);
-        console.log("x:", tableX, ",y:", tableY);
         const clickedCell = grid.table[tableX][tableY];
         grid.table[tableX][tableY] = grid.rules.states[(grid.getStateIndex(clickedCell) + 1) % grid.rules.states.length];
-        grid.draw();
+        grid.drawCell(tableX, tableY);
     }
     gridCanvas.addEventListener("mousedown", (ev) => {
-        gridChangeState(grid(), gridCanvas, ev);
+        changeGridCell(grid(), gridCanvas, ev);
     });
     document.getElementById("TransitionAdditionGrid").addEventListener("mousedown", (ev) => {
         if (newTransitionGrid != undefined) {
             let temp = newTransitionGrid.table[1][1];
-            gridChangeState(newTransitionGrid, document.getElementById("TransitionAdditionGrid"), ev);
+            changeGridCell(newTransitionGrid, document.getElementById("TransitionAdditionGrid"), ev);
             newTransitionGrid.table[1][1] = temp;
             newTransitionGrid.draw();
         }
@@ -367,7 +231,7 @@ onload = () => {
         if (nextGrid.rules.states.length >= 1) {
             newTransitionGrid = new Grid(nextGrid.rules, transAdderGrid);
             newTransitionGrid.GRID_HEIGHT = newTransitionGrid.GRID_WIDTH = 3;
-            newTransitionGrid.CELL_HEIGHT = newTransitionGrid.CELL_WIDTH = 100;
+            newTransitionGrid.CELL_HEIGHT = newTransitionGrid.CELL_WIDTH = 50;
             transAdderGrid.width = newTransitionGrid.GRID_WIDTH * newTransitionGrid.CELL_WIDTH;
             transAdderGrid.height = newTransitionGrid.GRID_HEIGHT * newTransitionGrid.CELL_HEIGHT;
             transAdderGrid.classList.add("Grid");
@@ -376,17 +240,23 @@ onload = () => {
             if (newTransitionGrid == undefined)
                 return;
             newTransitionGrid.createTable();
-            newTransitionGrid.table[1][1] = nextGrid.rules.states[stateSelection.fromStateIndex];
+            newTransitionGrid.table[1][1] = stateSelection.fromState;
             newTransitionGrid.draw();
         }
         let newState = new State(color);
         newState.transitions = [];
         nextGrid.rules.states.push(newState);
         let StateDOM = getNewStateDOMElement(color);
-        let index = nextGrid.rules.states.length - 1;
         StateDOM.addEventListener("click", () => {
-            let allDOMElements = document.getElementById("nextStateList").children;
-            let changedState = stateSelection.setCurrentState(index);
+            const allDOMElements = document.getElementById("nextStateList").childNodes;
+            let index;
+            allDOMElements.forEach((DOMElement, i) => {
+                if (DOMElement == StateDOM) {
+                    index = i;
+                    return;
+                }
+            });
+            let changedState = stateSelection.setCurrentState(nextGrid.rules.states[index]);
             if (changedState == null) {
                 let state1 = document.getElementById("nextStateList").getElementsByClassName("MarkedFrom").item(0);
                 let state2 = document.getElementById("nextStateList").getElementsByClassName("MarkedTo").item(0);
@@ -399,14 +269,14 @@ onload = () => {
             }
             else {
                 let markType = changedState ? "MarkedTo" : "MarkedFrom";
-                let otherState = document.getElementsByClassName(markType).item(0);
+                let otherState = document.getElementById("nextStateList").getElementsByClassName(markType).item(0);
                 if (otherState != null)
                     otherState.classList.remove(markType);
                 StateDOM.classList.add(markType);
             }
             document.getElementById("nextTransitionList").innerHTML = "";
             if (stateSelection.isValid())
-                document.getElementById("nextTransitionList").append(...getCurrentTransitionListDOMElement(nextGrid, nextGrid.rules.states[stateSelection.fromStateIndex], nextGrid.rules.states[stateSelection.toStateIndex]));
+                document.getElementById("nextTransitionList").append(...getCurrentTransitionListDOMElement(nextGrid, stateSelection.fromState, stateSelection.toState));
             updateTransInput();
         });
         nextStateList.appendChild(StateDOM);
@@ -416,14 +286,13 @@ onload = () => {
     document.getElementById("TransitionCreationButton").addEventListener("click", () => {
         if (!stateSelection.isValid())
             return;
-        let fromState = newTransitionGrid.rules.states[stateSelection.fromStateIndex];
-        let transId = fromState.getTransitionID(newTransitionGrid.getNboursByState(1, 1));
+        const fromState = stateSelection.fromState;
+        const transId = fromState.getTransitionID(newTransitionGrid.getNboursByState(1, 1));
         if (fromState.transitions.find((transition) => transition[0] == transId) == undefined) {
-            fromState.transitions.push([transId, newTransitionGrid.rules.states[stateSelection.toStateIndex]]);
+            fromState.transitions.push([transId, stateSelection.toState]);
+            document.getElementById("nextTransitionList").innerHTML = "";
+            document.getElementById("nextTransitionList").append(...getCurrentTransitionListDOMElement(nextGrid, stateSelection.fromState, stateSelection.toState));
         }
-        document.getElementById("nextTransitionList").innerHTML = "";
-        if (stateSelection.isValid())
-            document.getElementById("nextTransitionList").append(...getCurrentTransitionListDOMElement(nextGrid, nextGrid.rules.states[stateSelection.fromStateIndex], nextGrid.rules.states[stateSelection.toStateIndex]));
     });
     //Add create Ruleset functionality
     document.getElementById("RulesetCreationButton").addEventListener("click", () => {
@@ -432,20 +301,34 @@ onload = () => {
         //small workaround. To create the table in the new Grid, I can create a copy of the current next grid by passing it's rules through the grid constructor
         //which creates the table for me
         grids.push(new Grid(nextGrid.rules, gridCanvas));
+        //Create new Button
         let button = document.createElement("button");
         button.innerText = document.getElementById("RulesetNameInput").value;
-        let temp = grids.length.valueOf() - 1;
-        button.addEventListener("click", () => {
-            drawGrid(temp);
+        button.addEventListener("click", (ev) => {
+            let index;
+            document.getElementById("GridSelection").childNodes.forEach((gridButton, i) => {
+                if (gridButton == button)
+                    index = i;
+            });
+            showGrid(index);
             if (document.getElementById("AutomaticTransitionButton").innerText == "StopAutoNext")
                 document.getElementById("AutomaticTransitionButton").click();
         });
         document.getElementById("GridSelection").appendChild(button);
+        //reset the ruleset creator 
         nextGrid = new Grid(new Ruleset([]), gridCanvas);
         stateSelection.reset();
         document.getElementById("RulesetNameInput").value = "";
         document.getElementById("nextStateList").innerHTML = "";
         document.getElementById("TransitionAddition").innerHTML = "<canvas id=\"TransitionAdditionGrid\"></canvas>";
+        document.getElementById("TransitionAdditionGrid").addEventListener("mousedown", (ev) => {
+            if (newTransitionGrid != undefined) {
+                let temp = newTransitionGrid.table[1][1];
+                changeGridCell(newTransitionGrid, document.getElementById("TransitionAdditionGrid"), ev);
+                newTransitionGrid.table[1][1] = temp;
+                newTransitionGrid.draw();
+            }
+        });
         document.getElementById("nextTransitionList").innerHTML = "";
     });
     //Add delete Ruleset functionality
@@ -456,9 +339,9 @@ onload = () => {
         let gridDomList = document.getElementById("GridSelection");
         gridDomList.removeChild(gridDomList.childNodes.item(currentGrid));
         if (currentGrid > 0)
-            drawGrid(currentGrid - 1);
+            showGrid(currentGrid - 1);
         else
-            drawGrid(0);
+            showGrid(0);
     });
 };
 function addTestGrids(gridCanvas) {
@@ -466,7 +349,7 @@ function addTestGrids(gridCanvas) {
         let list = document.getElementById("GridSelection").childNodes;
         for (let i = 0; i < list.length; i++) {
             if (list.item(i) == button) {
-                drawGrid(i);
+                showGrid(i);
                 break;
             }
         }
