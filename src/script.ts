@@ -3,8 +3,8 @@ import {Ruleset} from "./Ruleset.js";
 import {Transition, State} from "./State.js";
 
 const GoL = function(){
-    let alive = new State("#d87070", [])
-    let dead = new State(undefined, [])
+    let alive = new State("#d87070", [], 1)
+    let dead = new State(undefined, [], 0)
     const transitionsDeadCell: Transition[] =
         [
             ["53", alive]
@@ -24,8 +24,8 @@ const GoL = function(){
     return new Ruleset([dead, alive]) 
 }
 const Seeds = function(){
-    let alive = new State("#0099ff", [])
-    let dead = new State(undefined, [])
+    let alive = new State("#0099ff", [], 1)
+    let dead = new State(undefined, [], 0)
     const transitionsDeadCell: Transition[] =
         [
             ["62", alive]
@@ -49,10 +49,10 @@ const Seeds = function(){
  * https://en.wikipedia.org/wiki/Wireworld
  */
 const Wireworld = function(){
-    let empty = new State("#000000",[])
-    let head = new State("blue",[])
-    let tail = new State("orange",[])
-    let cable = new State("yellow",[])
+    let empty = new State("#000000",[], 0)
+    let head = new State("blue",[], 2)
+    let tail = new State("orange",[], 3)
+    let cable = new State("yellow",[], 1)
 
     const transitionsHeadCell : Transition[] = []
     const transitionsTailCell : Transition[] = []
@@ -77,7 +77,7 @@ const Wireworld = function(){
 
 
 let grids : Grid[] = []
-
+globalThis.grids = grids
 let currentGrid = 0
 
 let nextGrid : Grid
@@ -194,7 +194,7 @@ onload = () => {
         const tableX = Math.floor((ev.pageX - canv.offsetLeft)/grid.CELL_WIDTH)
         const tableY = Math.floor((ev.pageY - canv.offsetTop)/grid.CELL_HEIGHT)
         const clickedCell = grid.table[tableX][tableY]
-        grid.table[tableX][tableY] = grid.rules.states[(grid.getStateIndex(clickedCell) + 1) % grid.rules.states.length]
+        clickedCell.state = grid.rules.states[(grid.getStateIndex(clickedCell.state) + 1) % grid.rules.states.length]
         grid.drawCell(tableX,tableY)
     }
 
@@ -235,7 +235,7 @@ onload = () => {
     document.getElementById("ResetButton").addEventListener("click",() => {
         for(let x = 0; x < grid().GRID_WIDTH; x++){
             for(let y = 0; y < grid().GRID_HEIGHT; y++){
-                grid().table[x][y] = grid().rules.states[0]
+                grid().table[x][y].state = grid().rules.states[0]
             }
         }
         if(document.getElementById("AutomaticTransitionButton").innerText == "StopAutoNext")document.getElementById("AutomaticTransitionButton").click()
@@ -266,15 +266,13 @@ onload = () => {
             if(newTransitionGrid == undefined)return;
             
             newTransitionGrid.createTable()
-            newTransitionGrid.table[1][1] = stateSelection.fromState
+            newTransitionGrid.table[1][1].state = stateSelection.fromState
 
             newTransitionGrid.draw()
         }
 
-        let newState = new State(color)
-        newState.transitions = []
+        let newState = new State(color,[],nextGrid.rules.states.length)
         nextGrid.rules.states.push(newState)
-
         let StateDOM = getNewStateDOMElement(color)
         StateDOM.addEventListener("click",() => {
             const allDOMElements = (document.getElementById("nextStateList") as HTMLDivElement).childNodes
@@ -319,13 +317,11 @@ onload = () => {
     document.getElementById("TransitionCreationButton").addEventListener("click",() => {
         if(!stateSelection.isValid())return
         const fromState = stateSelection.fromState
-        const transId = fromState.getTransitionID(newTransitionGrid.getNboursByState(1,1))
-        if(fromState.transitions.find((transition) => transition[0] == transId) == undefined){
-            fromState.transitions.push([transId,stateSelection.toState])
-            document.getElementById("nextTransitionList").innerHTML = ""
-            document.getElementById("nextTransitionList").append(...getCurrentTransitionListDOMElement(nextGrid,stateSelection.fromState,stateSelection.toState))
-            
-        }
+        const transId = nextGrid.table[1][1].getTransitionID()
+        if(fromState.transitions.find((transition) => transition[0] == transId) != undefined)return
+        fromState.transitions.push([transId,stateSelection.toState])
+        document.getElementById("nextTransitionList").innerHTML = ""
+        document.getElementById("nextTransitionList").append(...getCurrentTransitionListDOMElement(nextGrid,stateSelection.fromState,stateSelection.toState))
     })
 
     //Add create Ruleset functionality

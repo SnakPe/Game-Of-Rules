@@ -1,8 +1,8 @@
 import {Ruleset} from "./Ruleset";
-import {State} from "./State";
-
+import { State } from "./State";
+import {Cell} from "./Cell.js";
 export class Grid {
-    table : State[][];
+    table : Cell[][];
     rules : Ruleset;
     GRID_WIDTH = 100;
     GRID_HEIGHT = 80;
@@ -10,13 +10,31 @@ export class Grid {
         this.canvas = canvas;
         this.rules = ruleset;
         this.createTable();
+        this.setupNeighbourPointersInStates();
     }
     createTable() {
         this.table = [];
+       
         for (let x = 0; x < this.GRID_WIDTH; x++) {
             this.table.push([]);
             for (let y = 0; y < this.GRID_HEIGHT; y++) {
-                this.table[x].push(this.rules.states[0]);
+                const newCell = new Cell(this.rules.states[0])
+                newCell.createGetTransitionID(this.rules.states.length)
+                this.table[x].push(newCell);
+            }
+        }
+    }
+    setupNeighbourPointersInStates(){
+        for (let x = 0; x < this.GRID_WIDTH; x++) {
+            for (let y = 0; y < this.GRID_HEIGHT; y++) {
+
+
+                for(let nbourX = x-1; nbourX <= x+1; nbourX++){
+                    for(let nbourY = y-1; nbourY <= y+1; nbourY++){
+                        if(nbourX == x && nbourY == y)continue;
+                        this.table[x][y].neighbours.push(this.table[this.mod(nbourX, this.GRID_WIDTH)][this.mod(nbourY, this.GRID_HEIGHT)])
+                    }
+                }
             }
         }
     }
@@ -24,24 +42,7 @@ export class Grid {
         let result = a % b;
         return result < 0 ? b + result : result;
     }
-    getNboursByState(x, y) {
-        let nbours = [];
-        for (let states = 0; states < this.rules.states.length; states++)
-            nbours.push(0);
-        for (let xPos = x - 1; xPos <= x + 1; xPos++) {
-            for (let yPos = y - 1; yPos <= y + 1; yPos++) {
-                if (xPos == x && yPos == y)
-                    continue;
-                else {
-                    let stateIndex = this.rules.states.findIndex((state) => {
-                        return this.table[this.mod(xPos, this.GRID_WIDTH)][this.mod(yPos, this.GRID_HEIGHT)] == state;
-                    });
-                    nbours[stateIndex]++;
-                }
-            }
-        }
-        return nbours;
-    }
+    
     getStateIndex(state) {
         return this.rules.states.findIndex((st) => state == st);
     }
@@ -53,7 +54,7 @@ export class Grid {
         for (let x = 0; x < this.GRID_WIDTH; x++) {
             newTable.push([]);
             for (let y = 0; y < this.GRID_HEIGHT; y++) {
-                newTable[x].push(this.table[x][y].getNextState(this.getNboursByState(x, y)));
+                newTable[x].push(this.table[x][y].getNextState());
             }
         }
         this.table = newTable;
@@ -78,43 +79,49 @@ export class Grid {
         let CellY = 0;
         for (let x = 0; x < this.GRID_WIDTH; x++) {
             for (let y = 0; y < this.GRID_HEIGHT; y++) {
-                ctx.fillStyle = this.table[x][y].color;
+                ctx.fillStyle = this.table[x][y].state.color;
                 ctx.fillRect(CellX + .5, CellY + .5, this.CELL_WIDTH, this.CELL_HEIGHT);
                 CellY += this.CELL_HEIGHT;
             }
             CellY = 0;
             CellX += this.CELL_WIDTH;
         }
-        this.drawGridWithLines();
+        this.drawGridLines();
         ctx.strokeStyle = "red";
         ctx.strokeRect(Math.ceil(this.GRID_WIDTH / 2 - 1) * this.CELL_WIDTH + .5, Math.ceil(this.GRID_HEIGHT / 2 - 1) * this.CELL_HEIGHT  + .5, this.CELL_WIDTH, this.CELL_HEIGHT);
     }
     drawTransition() {
-        let newTable = Array.from(Array(this.GRID_WIDTH), () => new Array(this.GRID_HEIGHT));
+        let newCellStates = Array.from(Array(this.GRID_WIDTH), () => new Array(this.GRID_HEIGHT)) as State[][];
         let ctx = this.canvas.getContext("2d");
         ctx.lineWidth = this.BORDER_WIDTH;
         ctx.strokeStyle = this.CELL_COLOR;
         let CellX = 0;
         let CellY = 0;
+        
         for (let x = 0; x < this.GRID_WIDTH; x++) {
             for (let y = 0; y < this.GRID_HEIGHT; y++) {
-                let nextState = this.table[x][y].getNextState(this.getNboursByState(x, y));
-                newTable[x][y] = nextState;
-                if (nextState == this.table[x][y]) {
+                let nextState = this.table[x][y].getNextState();
+                newCellStates[x][y] = nextState
+
+                if (nextState == this.table[x][y].state) {
                     CellY = CellY + this.CELL_HEIGHT;
                     continue;
                 }
-                ctx.fillStyle = newTable[x][y].color;
+                ctx.fillStyle = newCellStates[x][y].color;
                 ctx.fillRect(CellX + .5, CellY + .5, this.CELL_WIDTH, this.CELL_HEIGHT);
                 CellY += this.CELL_HEIGHT;
             }
             CellY = 0;
             CellX += this.CELL_WIDTH;
         }
-        this.drawGridWithLines();
+        this.drawGridLines();
         ctx.strokeStyle = "red";
         ctx.strokeRect(Math.ceil(this.GRID_WIDTH / 2 - 1) * this.CELL_WIDTH + .5, Math.ceil(this.GRID_HEIGHT / 2 - 1) * this.CELL_HEIGHT + .5, this.CELL_WIDTH, this.CELL_HEIGHT);
-        this.table = newTable;
+        for (let x = 0; x < this.GRID_WIDTH; x++) {
+            for (let y = 0; y < this.GRID_HEIGHT; y++) {
+                this.table[x][y].state = newCellStates[x][y]
+            }
+        }
     }
     /**
      * Draws the cell at (x,y) on the canvas
@@ -125,7 +132,7 @@ export class Grid {
         let ctx = this.canvas.getContext("2d");
         ctx.lineWidth = this.BORDER_WIDTH;
         ctx.strokeStyle = this.CELL_COLOR;
-        ctx.fillStyle = this.table[x][y].color;
+        ctx.fillStyle = this.table[x][y].state.color;
         ctx.fillRect(this.CELL_WIDTH * x + .5, this.CELL_HEIGHT * y + .5, this.CELL_WIDTH, this.CELL_HEIGHT);
         ctx.strokeRect(this.CELL_WIDTH * x + .5, this.CELL_HEIGHT * y + .5, this.CELL_WIDTH, this.CELL_HEIGHT);
         let redCellXDist = x - Math.floor(this.GRID_WIDTH / 2 - 1);
@@ -136,10 +143,10 @@ export class Grid {
         }
     }
     /**
-     * this is for performance testing only
-     * somehow this makes performance worse tho?!!???!?!??!?!??!
+     * draws the lines from the grid lol
+     * good comments
      */
-    drawGridWithLines() {
+    drawGridLines() {
         let ctx = this.canvas.getContext("2d");
         ctx.lineWidth = this.BORDER_WIDTH;
         ctx.strokeStyle = this.CELL_COLOR;
