@@ -6,7 +6,7 @@ export class Grid {
     rules : Ruleset;
     GRID_WIDTH = 100;
     GRID_HEIGHT = 80;
-    constructor(ruleset, canvas) {
+    constructor(ruleset : Ruleset, canvas : HTMLCanvasElement) {
         this.canvas = canvas;
         this.rules = ruleset;
         this.createTable();

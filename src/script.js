@@ -239,6 +239,7 @@ onload = () => {
             if (newTransitionGrid == undefined)
                 return;
             newTransitionGrid.createTable();
+            newTransitionGrid.setupNeighbourPointersInStates();
             newTransitionGrid.table[1][1].state = stateSelection.fromState;
             newTransitionGrid.draw();
         }
@@ -285,7 +286,7 @@ onload = () => {
         if (!stateSelection.isValid())
             return;
         const fromState = stateSelection.fromState;
-        const transId = nextGrid.table[1][1].getTransitionID();
+        const transId = newTransitionGrid.table[1][1].getTransitionID();
         if (fromState.transitions.find((transition) => transition[0] == transId) != undefined)
             return;
         fromState.transitions.push([transId, stateSelection.toState]);
