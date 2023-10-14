@@ -67,8 +67,53 @@ const Wireworld = function () {
     cable.transitions = transitionsCableCell;
     return new Ruleset([empty, cable, head, tail]);
 };
+let wave = function () {
+    let air = new State("#000000", []);
+    let hot = new State("red", []);
+    let warm = new State("orange", []);
+    let lukewarm = new State("yellow", []);
+    const transAir = [];
+    const transHot = [];
+    const transWarm = [];
+    const transLukewarm = [];
+    for (let emptyNbours = 8; emptyNbours >= 0; emptyNbours--) {
+        for (let hotNbours = 8 - emptyNbours; hotNbours >= 0; hotNbours--) {
+            for (let warmNbours = 8 - emptyNbours - hotNbours; warmNbours >= 0; warmNbours--) {
+                let lukewarmNbours = 8 - emptyNbours - hotNbours - warmNbours;
+                const transID = emptyNbours.toString() + hotNbours + warmNbours + lukewarmNbours;
+                transHot.push([transID, warm]);
+                transWarm.push([transID, lukewarm]);
+                transLukewarm.push([transID, air]);
+                if (hotNbours > 0)
+                    transAir.push([transID, hot]);
+            }
+        }
+    }
+    air.transitions = transAir;
+    hot.transitions = transHot;
+    warm.transitions = transWarm;
+    lukewarm.transitions = transLukewarm;
+    return new Ruleset([air, hot, warm, lukewarm]);
+};
+globalThis.addWave = function () {
+    let canvas = document.getElementById("MainGrid");
+    grids.push(new Grid(wave(), canvas));
+    let button = document.createElement("button");
+    button.innerHTML = "Wave";
+    button.addEventListener("click", () => {
+        let list = document.getElementById("GridSelection").childNodes;
+        for (let i = 0; i < list.length; i++) {
+            if (list.item(i) == button) {
+                showGrid(i);
+                break;
+            }
+        }
+        if (document.getElementById("AutomaticTransitionButton").innerText == "StopAutoNext")
+            document.getElementById("AutomaticTransitionButton").click();
+    });
+    document.getElementById("GridSelection").appendChild(button);
+};
 let grids = [];
-globalThis.grids = grids;
 let currentGrid = 0;
 let nextGrid;
 let newTransitionGrid;
@@ -110,7 +155,6 @@ let stateSelection = {
         //TODO
     }
 };
-globalThis.stateSelection = stateSelection;
 function showGrid(gridIndex) {
     currentGrid = gridIndex;
     grids[gridIndex].draw();

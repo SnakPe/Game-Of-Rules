@@ -8,7 +8,8 @@ const GoL = function(){
     const transitionsDeadCell: Transition[] =
         [
             ["53", alive]
-        ], transitionsAliveCell: Transition[] =
+        ], 
+    transitionsAliveCell: Transition[] =
         [
             ["08", dead],
             ["17", dead],
@@ -74,7 +75,56 @@ const Wireworld = function(){
     return new Ruleset([empty,cable,head,tail])
 }
 
+let wave = function(){
+    let air = new State("#000000",[]);
+    let hot = new State("red",[]);
+    let warm = new State("orange",[]);
+    let lukewarm = new State("yellow",[]);
 
+    const transAir : Transition[] = []
+    const transHot : Transition[] = []
+    const transWarm : Transition[] = []
+    const transLukewarm : Transition[] = []
+    for(let emptyNbours = 8; emptyNbours >= 0;emptyNbours--){
+        for(let hotNbours = 8 - emptyNbours; hotNbours >= 0;hotNbours--){
+            for (let warmNbours =  8 - emptyNbours - hotNbours ; warmNbours >= 0; warmNbours--) {
+                let lukewarmNbours = 8 - emptyNbours - hotNbours - warmNbours
+                const transID = emptyNbours.toString() + hotNbours + warmNbours + lukewarmNbours
+                transHot.push([transID,warm])
+                transWarm.push([transID,lukewarm])
+                transLukewarm.push([transID,air])
+                if(hotNbours > 0)transAir.push([transID,hot])
+            }
+        }
+    }
+    air.transitions = transAir
+    hot.transitions = transHot
+    warm.transitions = transWarm
+    lukewarm.transitions = transLukewarm
+    return new Ruleset([air, hot, warm, lukewarm])
+}
+
+globalThis.addWave = function(){
+    let canvas = document.getElementById("MainGrid") as HTMLCanvasElement
+    grids.push(new Grid(wave(),canvas))
+
+    let button = document.createElement("button")
+    button.innerHTML = "Wave"
+    button.addEventListener("click", () => {
+        let list = document.getElementById("GridSelection").childNodes as NodeListOf<HTMLButtonElement>
+        for(let i = 0; i < list.length;i++) {
+            if (list.item(i) == button){
+                showGrid(i)
+                break
+            }
+        }
+        if(document.getElementById("AutomaticTransitionButton").innerText == "StopAutoNext")document.getElementById("AutomaticTransitionButton").click()
+        
+    })
+
+
+    document.getElementById("GridSelection").appendChild(button)
+}
 
 let grids : Grid[] = []
 
@@ -247,10 +297,10 @@ onload = () => {
         nextGrid.rules.states.forEach((state) => {state.transitions = []})
         document.getElementById("nextTransitionList").innerHTML = ""
 
-        let nextStateList = document.getElementById("nextStateList") as HTMLDivElement
-        let color = (document.getElementById("StateColorSelector") as HTMLInputElement).value
+        const nextStateList = document.getElementById("nextStateList") as HTMLDivElement
+        const color = (document.getElementById("StateColorSelector") as HTMLInputElement).value
 
-        let transAdderGrid = document.getElementById("TransitionAdditionGrid") as HTMLCanvasElement
+        const transAdderGrid = document.getElementById("TransitionAdditionGrid") as HTMLCanvasElement
         if(nextGrid.rules.states.length >= 1){
             newTransitionGrid = new Grid(nextGrid.rules,transAdderGrid)
 
