@@ -269,9 +269,9 @@ onload = () => {
     document.getElementById("StateCreationButton").addEventListener("click", () => {
         nextGrid.rules.states.forEach((state) => { state.transitions = []; });
         document.getElementById("nextTransitionList").innerHTML = "";
-        let nextStateList = document.getElementById("nextStateList");
-        let color = document.getElementById("StateColorSelector").value;
-        let transAdderGrid = document.getElementById("TransitionAdditionGrid");
+        const nextStateList = document.getElementById("nextStateList");
+        const color = document.getElementById("StateColorSelector").value;
+        const transAdderGrid = document.getElementById("TransitionAdditionGrid");
         if (nextGrid.rules.states.length >= 1) {
             newTransitionGrid = new Grid(nextGrid.rules, transAdderGrid);
             newTransitionGrid.GRID_HEIGHT = newTransitionGrid.GRID_WIDTH = 3;

@@ -60,7 +60,7 @@ export class Grid {
     CELL_WIDTH = 10; // 10 is best
     CELL_HEIGHT = 10;
     CELL_COLOR = "#333333";
-    BORDER_WIDTH = 1; // 2 is best
+    BORDER_WIDTH = 1; // 1 is best
     canvas;
     /**
      * This redraws the entire canvas
@@ -76,13 +76,13 @@ export class Grid {
         for (let x = 0; x < this.GRID_WIDTH; x++) {
             for (let y = 0; y < this.GRID_HEIGHT; y++) {
                 ctx.fillStyle = this.table[x][y].color;
-                ctx.fillRect(CellX + .5, CellY + .5, this.CELL_WIDTH, this.CELL_HEIGHT);
+                ctx.fillRect(CellX + .0, CellY + .0, this.CELL_WIDTH, this.CELL_HEIGHT); // add 0.5 to x and y pos if you have weird leftover borders or sth
                 CellY += this.CELL_HEIGHT;
             }
             CellY = 0;
             CellX += this.CELL_WIDTH;
         }
-        this.drawGridWithLines();
+        // this.drawGridWithLines();
         ctx.strokeStyle = "red";
         ctx.strokeRect(Math.ceil(this.GRID_WIDTH / 2 - 1) * this.CELL_WIDTH + .5, Math.ceil(this.GRID_HEIGHT / 2 - 1) * this.CELL_HEIGHT + .5, this.CELL_WIDTH, this.CELL_HEIGHT);
     }
@@ -102,13 +102,13 @@ export class Grid {
                     continue;
                 }
                 ctx.fillStyle = newTable[x][y].color;
-                ctx.fillRect(CellX + .5, CellY + .5, this.CELL_WIDTH, this.CELL_HEIGHT);
+                ctx.fillRect(CellX + 0, CellY + 0, this.CELL_WIDTH, this.CELL_HEIGHT); // add 0.5 to x and y pos if you have weird leftover borders or sth
                 CellY += this.CELL_HEIGHT;
             }
             CellY = 0;
             CellX += this.CELL_WIDTH;
         }
-        this.drawGridWithLines();
+        // this.drawGridWithLines();
         ctx.strokeStyle = "red";
         ctx.strokeRect(Math.ceil(this.GRID_WIDTH / 2 - 1) * this.CELL_WIDTH + .5, Math.ceil(this.GRID_HEIGHT / 2 - 1) * this.CELL_HEIGHT + .5, this.CELL_WIDTH, this.CELL_HEIGHT);
         this.table = newTable;
@@ -123,8 +123,8 @@ export class Grid {
         ctx.lineWidth = this.BORDER_WIDTH;
         ctx.strokeStyle = this.CELL_COLOR;
         ctx.fillStyle = this.table[x][y].color;
-        ctx.fillRect(this.CELL_WIDTH * x + .5, this.CELL_HEIGHT * y + .5, this.CELL_WIDTH, this.CELL_HEIGHT);
-        ctx.strokeRect(this.CELL_WIDTH * x + .5, this.CELL_HEIGHT * y + .5, this.CELL_WIDTH, this.CELL_HEIGHT);
+        ctx.fillRect(this.CELL_WIDTH * x + 0, this.CELL_HEIGHT * y + .0, this.CELL_WIDTH, this.CELL_HEIGHT); // add 0.5 to x and y pos if you have weird leftover borders or sth
+        //ctx.strokeRect(this.CELL_WIDTH * x + .5, this.CELL_HEIGHT * y + .5, this.CELL_WIDTH, this.CELL_HEIGHT);
         let redCellXDist = x - Math.floor(this.GRID_WIDTH / 2 - 1);
         let redCellYDist = y - Math.ceil(this.GRID_HEIGHT / 2 - 1);
         if (redCellXDist >= -1 && redCellXDist <= 1 && redCellYDist >= -1 && redCellYDist <= 1) {

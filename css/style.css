@@ -45,13 +45,17 @@ input{
     border: #d87070 solid 2px;
     background: #1d1a1a;
 }
+.overflowManager{
+    overflow: auto;
+}
 #main{
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     gap: 10px;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
 }
+
 #CurrentTransitionsList{
     height: 692px;
     overflow-y: scroll;

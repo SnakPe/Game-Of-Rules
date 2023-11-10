@@ -12,61 +12,63 @@
     <body>
         <h1> Cellular Automata </h1>
         <h2> design you own Game of Life!</h2>
+        
         <div id="main">
-            <div id="CurrentGridController">
-                States:<br>
-                <div id="CurrentStateList" class="StateList"></div><br>
-                <button id="TransitionButton" class="button"> Next </button><br>
-                <button id="AutomaticTransitionButton" class="button"> AutoNext </button>
-                <button id="ResetButton" class="button"> Reset </button><br>
-                Transitions:
-                <div id="CurrentTransitionsList"></div>
-            </div>
-            <canvas id="MainGrid" class="Grid"></canvas>
-            <div id="idk yet">
-                
- 
-                <div id="RulesetCreation">
-                    <h1>Ruleset Creator</h1>
-                    <label for="RulesetNameInput">Ruleset name:</label> <input id="RulesetNameInput" type="text" placeholder="Type Name"><br>
+                <div id="CurrentGridController">
+                    States:<br>
+                    <div id="CurrentStateList" class="StateList"></div><br>
+                    <button id="TransitionButton" class="button"> Next </button><br>
+                    <button id="AutomaticTransitionButton" class="button"> AutoNext </button>
+                    <button id="ResetButton" class="button"> Reset </button><br>
+                    Transitions:
+                    <div id="CurrentTransitionsList"></div>
+                </div>
+                <div class="overflowManager Grid">
+                    <canvas id="MainGrid"></canvas>
+                </div>
+                <div id="idk yet">
                     
-                    <div id="StateCreation">
-                        <h2>State Creator</h2>
+    
+                    <div id="RulesetCreation">
+                        <h1>Ruleset Creator</h1>
+                        <label for="RulesetNameInput">Ruleset name:</label> <input id="RulesetNameInput" type="text" placeholder="Type Name"><br>
                         
-                        <label for="StateColorSelector">Color:</label><input id="StateColorSelector" type="color"><button id="StateCreationButton">Add State</button><br>
-                    </div>
-                    
-                    <p>
-                        States:
-                    </p>
-                    
-                    <div id="nextStateList" class="StateList"></div><br>
-                    You need at least 2 states
-                    
-                    <div id="TransitionCreation">
-                        <h2>Transition Creator</h2>
-                        <p>
-                            <h3>How to create a Transition:</h3>
-                            <small>
-                                Select 2 states.</br>
-                                The green state will transform to the red state</br>
-                                When it transforms is dependent on the 8 cells around it</br>
-                            </small>
-                        </p>
-                        <!-- MAKE INPUT FIELDS FOR NUMBER OF NBOURS PER STATE -->
-                        <div id="TransitionAddition">
-                            <canvas id="TransitionAdditionGrid"></canvas>
+                        <div id="StateCreation">
+                            <h2>State Creator</h2>
+                            
+                            <label for="StateColorSelector">Color:</label><input id="StateColorSelector" type="color"><button id="StateCreationButton">Add State</button><br>
                         </div>
                         
-                        <button id="TransitionCreationButton">Add Transition</button><br>
-                        Transitions:
-                        <div id="nextTransitionList" class="StateList"></div>
+                        <p>
+                            States:
+                        </p>
+                        
+                        <div id="nextStateList" class="StateList"></div><br>
+                        You need at least 2 states
+                        
+                        <div id="TransitionCreation">
+                            <h2>Transition Creator</h2>
+                            <p>
+                                <h3>How to create a Transition:</h3>
+                                <small>
+                                    Select 2 states.</br>
+                                    The green state will transform to the red state</br>
+                                    When it transforms is dependent on the 8 cells around it</br>
+                                </small>
+                            </p>
+                            <!-- MAKE INPUT FIELDS FOR NUMBER OF NBOURS PER STATE -->
+                            <div id="TransitionAddition">
+                                <canvas id="TransitionAdditionGrid"></canvas>
+                            </div>
+                            
+                            <button id="TransitionCreationButton">Add Transition</button><br>
+                            Transitions:
+                            <div id="nextTransitionList" class="StateList"></div>
+                        </div>
+                        <button id="RulesetCreationButton">Create Ruleset</button>  
                     </div>
-                    <button id="RulesetCreationButton">Create Ruleset</button>  
                 </div>
-            </div>
         </div>
-        
         Rulesets:<div id="GridSelection"></div></br>
         <button id="GridDeletionButton">Delete</button>
     </body>    
