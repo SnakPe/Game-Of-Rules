@@ -37,7 +37,7 @@ The red and green-bordered states in the state list tell you which state your ru
 For example, if state 1 has a green, and state 2 has a red border, then a cell in state 1 will transition to state 2, if your rule is satisfied.</br>
 To define your rule, use the 3x3 grid below. The only important thing here is the amount of states in the neighbourhood.
 
-Yur are done! Click on **Create Ruleset**, and you can start playing around
+You are done! Click on **Create Ruleset**, and you can start playing around
 
 
 
