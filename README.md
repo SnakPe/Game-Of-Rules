@@ -31,10 +31,10 @@ These will be important in the next section
 
 ### Transition rules
 
-Now we are able to create the interesting stuff! For now, our states don't do anything, so we need to add some _life_ into them.</br>
+Now we are able to create the interesting stuff! For now, our states don't do anything, so we need to add some _life_ into them.
 We can do exacly that by using the **Transition Creator**</br> 
-The red and green-bordered states in the state list tell you which state your rule applies to, and what state it will transition to.</br>
-For example, if state 1 has a green, and state 2 has a red border, then a cell in state 1 will transition to state 2, if your rule is satisfied.</br>
+The red and green-bordered states in the state list tell you which state your rule applies to, and what state it will transition to.
+For example, if state 1 has a green, and state 2 has a red border, then a cell in state 1 will transition to state 2, if your rule is satisfied.
 To define your rule, use the 3x3 grid below. The only important thing here is the amount of states in the neighbourhood.
 
 You are done! Click on **Create Ruleset**, and you can start playing around
