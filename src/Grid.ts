@@ -85,7 +85,7 @@ export class Grid {
             CellY = 0;
             CellX += this.CELL_WIDTH;
         }
-        // this.drawGridWithLines();
+        this.drawGridWithLines();
         ctx.strokeStyle = "red";
         ctx.strokeRect(Math.ceil(this.GRID_WIDTH / 2 - 1) * this.CELL_WIDTH + .5, Math.ceil(this.GRID_HEIGHT / 2 - 1) * this.CELL_HEIGHT  + .5, this.CELL_WIDTH, this.CELL_HEIGHT);
     }
@@ -111,7 +111,7 @@ export class Grid {
             CellY = 0;
             CellX += this.CELL_WIDTH;
         }
-        // this.drawGridWithLines();
+        this.drawGridWithLines();
         ctx.strokeStyle = "red";
         ctx.strokeRect(Math.ceil(this.GRID_WIDTH / 2 - 1) * this.CELL_WIDTH + .5, Math.ceil(this.GRID_HEIGHT / 2 - 1) * this.CELL_HEIGHT + .5, this.CELL_WIDTH, this.CELL_HEIGHT);
         this.table = newTable;
@@ -127,7 +127,7 @@ export class Grid {
         ctx.strokeStyle = this.CELL_COLOR;
         ctx.fillStyle = this.table[x][y].color;
         ctx.fillRect(this.CELL_WIDTH * x + 0, this.CELL_HEIGHT * y + .0, this.CELL_WIDTH, this.CELL_HEIGHT); // add 0.5 to x and y pos if you have weird leftover borders or sth
-        //ctx.strokeRect(this.CELL_WIDTH * x + .5, this.CELL_HEIGHT * y + .5, this.CELL_WIDTH, this.CELL_HEIGHT);
+        ctx.strokeRect(this.CELL_WIDTH * x + .5, this.CELL_HEIGHT * y + .5, this.CELL_WIDTH, this.CELL_HEIGHT);
         let redCellXDist = x - Math.floor(this.GRID_WIDTH / 2 - 1);
         let redCellYDist = y - Math.ceil(this.GRID_HEIGHT / 2 - 1);
         if (redCellXDist >= -1 && redCellXDist <= 1 && redCellYDist >= -1 && redCellYDist <= 1) {
